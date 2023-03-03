@@ -6,7 +6,6 @@ use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use function Symfony\Component\String\u;
-use Knp\Bundle\TimeBundle\DateTimeFormatter;
 
 class VinylController extends AbstractController
 {
@@ -23,14 +22,10 @@ class VinylController extends AbstractController
   }
 
   #[Route('/browse/{slug}', name: 'app_browse')]
-  public function browse(DateTimeFormatter $dateTimeFormatter, string $slug = null)
+  public function browse( string $slug = null)
   {
     $genre = $slug ? u(str_replace('-', ' ', $slug))->title(true) : null;
     $mixes = $this->getMixes();
-
-    foreach ($mixes as $key => $mix) {
-      $mixes[$key]['ago'] = $dateTimeFormatter->formatDiff($mix['createdAt']);
-    }
     
     return $this->render('vinyl/browse.html.twig', [
       'genre' => $genre,
