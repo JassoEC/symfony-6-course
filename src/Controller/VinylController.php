@@ -2,33 +2,46 @@
 
 namespace App\Controller;
 
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use function Symfony\Component\String\u;
+use Knp\Bundle\TimeBundle\DateTimeFormatter;
 
 class VinylController extends AbstractController
 {
   #[Route('/', name: 'app_homepage')]
   public function homepage()
   {
-    $tracks = [
-      ['song' => 'Ojos negros', 'artist' => 'El Gran Combo de Puerto Rico'],
-      ['song' => 'Quimbara', 'artist' => 'Fania'],
-    ];
-    
+    $mixes = $this->getMixes();
+
     return $this->render('vinyl/homepage.html.twig', [
-      'tracks' => $tracks,
+      'mixes' => $mixes,
       'title' => 'Trucutu'
     ]);
+
   }
 
   #[Route('/browse/{slug}', name: 'app_browse')]
-  public function browse(string $slug = null)
+  public function browse(DateTimeFormatter $dateTimeFormatter, string $slug = null)
   {
     $genre = $slug ? u(str_replace('-', ' ', $slug))->title(true) : null;
+    $mixes = $this->getMixes();
 
+    foreach ($mixes as $key => $mix) {
+      $mixes[$key]['ago'] = $dateTimeFormatter->formatDiff($mix['createdAt']);
+    }
+    
     return $this->render('vinyl/browse.html.twig', [
-      'genre' => $genre
+      'genre' => $genre,
+      'mixes' => $mixes
     ]);
+  }
+
+  private function getMixes(): array{
+    return [
+      ['song' => 'Ojos negros', 'artist' => 'El Gran Combo de Puerto Rico','createdAt'=> new DateTime('2021-10-02')],
+      ['song' => 'Quimbara', 'artist' => 'Fania','createdAt'=> new DateTime('2020-10-02')],
+    ];
   }
 }
